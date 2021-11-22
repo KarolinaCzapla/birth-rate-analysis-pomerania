@@ -1,5 +1,7 @@
 import psycopg2
 import matplotlib.pyplot as plt
+import pandas as pd
+from allPackage.birth_package import *
 
 con = psycopg2.connect(
     host='localhost',
@@ -25,7 +27,6 @@ all_month = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'au
 
 data = []
 cur = con.cursor()
-
 for x in all_month:
     cur.execute(f'select * from {x}')
     rows = cur.fetchall()
@@ -38,42 +39,29 @@ for x in all_month:
 cur.close()
 con.close()
 
-
-# total birth per year
-def total_birth_year(data):
-    value = 2020
-    result = 0
-    birth_list = []
-    while value > 2001:
-        for x in data:
-            if x.year == value:
-                result += x.birth_number
-        birth_list.append(result)
-        value -= 1
-        result = 0
-    return birth_list[::-1]
-
-
 year_list = list(range(2002, 2021))
 birth_list = total_birth_year(data)
-dictionary = dict(zip(year_list, birth_list))
-print(dictionary)
+# dictionary = dict(zip(year_list, birth_list))
+# print(dictionary)
+# print(year_list)
 
-# def total_birth_month(data):
-#     all_month = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august',
-#                  'september', 'october', 'november', 'december']
-#     result = 0
-#     birth_lis = []
-#     value = len(all_month)
-#     while value >0:
-#         for x in data:
-#             if x.month == all_month[value-1]:
-#                  result += x.birth_number
-#         birth_lis.append(result)
-#         value -= 1
-#         result = 0
-#     print(birth_lis)
-# total_birth_month(data)
+# Plot the figure
+freq_series = pd.Series(birth_list)
+plt.figure(figsize=(12, 8))
+ax = freq_series.plot(kind='bar')
+ax.set_title('Total births per year', fontsize=20)
+ax.set_xlabel('Years')
+ax.set_ylabel('Total births')
+ax.set_xticklabels(year_list)
+plt.savefig('total_births_per_year.png')
+plt.show()
 
-
-
+freq_series = pd.Series(total_birth_month(data))
+plt.figure(figsize=(12, 8))
+ax = freq_series.plot(kind='bar')
+ax.set_title('Total births per month', fontsize=20)
+ax.set_xlabel('Month')
+ax.set_ylabel('Total births')
+ax.set_xticklabels(all_month)
+plt.savefig('total_births_per_month.png')
+plt.show()
